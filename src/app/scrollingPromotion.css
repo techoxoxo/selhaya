@@ -1,0 +1,38 @@
+@keyframes sp-scroll-right {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+  
+  .sp-section {
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  
+  .sp-container {
+    --sp-item-gap: 70px;
+    --sp-item-gap-mobile: 40px;
+    --sp-duration: 60s;
+  }
+  
+  .sp-scroll-right {
+    animation: sp-scroll-right var(--sp-duration) linear infinite;
+  }
+  
+  .sp-section:hover .sp-scroll-right {
+    animation-play-state: paused;
+  }
+  
+  .sp-item {
+    display: inline-flex;
+    align-items: center;
+  }
+  
+  .sp-image {
+    max-height: var(--sp-image-height);
+    width: auto;
+    object-fit: contain;
+  }

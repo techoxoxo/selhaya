@@ -3,6 +3,12 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --primary-gold: #d4af37;
+  --secondary-gold: #b8860b;
+  --warm-beige: #f5f5dc;
+  --soft-gray: #f8f8f8;
+  --text-dark: #2c2c2c;
+  --text-light: #666666;
 }
 
 @theme inline {
@@ -12,15 +18,129 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-gold);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-gold);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.animate-fade-in-left {
+  animation: fadeInLeft 0.8s ease-out;
+}
+
+.animate-fade-in-right {
+  animation: fadeInRight 0.8s ease-out;
+}
+
+
+@keyframes sp-scroll-right {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.sp-section {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sp-container {
+  --sp-item-gap: 70px;
+  --sp-item-gap-mobile: 40px;
+  --sp-duration: 60s;
+}
+
+.sp-scroll-right {
+  animation: sp-scroll-right var(--sp-duration) linear infinite;
+}
+
+.sp-section:hover .sp-scroll-right {
+  animation-play-state: paused;
+}
+
+.sp-item {
+  display: inline-flex;
+  align-items: center;
+}
+
+.sp-image {
+  max-height: var(--sp-image-height);
+  width: auto;
+  object-fit: contain;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
 }
