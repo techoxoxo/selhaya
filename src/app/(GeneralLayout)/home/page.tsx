@@ -508,17 +508,6 @@ const HeroSection = ({
           }
           animateText();
         },
-        onLeave: () => {
-          // Reset when leaving
-          const contentElement = sectionRef.current?.querySelector(".hero-content");
-          if (contentElement) {
-            gsap.set(contentElement, {
-              opacity: 0,
-              y: 50,
-              scale: 0.95
-            });
-          }
-        },
         onEnterBack: () => {
           // Animate when coming back to this section
           const contentElement = sectionRef.current?.querySelector(".hero-content");
@@ -1217,7 +1206,6 @@ const ArrowCircle = ({ className = "" }: { className?: string }) => {
     const handleMouseEnter = () => {
       gsap.to(buttonRef.current, {
         scale: 1.1,
-        rotation: 5,
         duration: 0.3,
         ease: "power2.out"
       });
@@ -1226,7 +1214,6 @@ const ArrowCircle = ({ className = "" }: { className?: string }) => {
     const handleMouseLeave = () => {
       gsap.to(buttonRef.current, {
         scale: 1,
-        rotation: 0,
         duration: 0.3,
         ease: "power2.out"
       });
