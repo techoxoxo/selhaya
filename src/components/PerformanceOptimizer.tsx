@@ -8,6 +8,7 @@ export const PerformanceOptimizer = () => {
   const fpsRef = useRef<HTMLDivElement>(null);
   const frameCountRef = useRef(0);
   const lastTimeRef = useRef(performance.now());
+  const animationFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
     // FPS monitoring
@@ -35,17 +36,18 @@ export const PerformanceOptimizer = () => {
         lastTimeRef.current = currentTime;
       }
       
-      requestAnimationFrame(updateFPS);
+      animationFrameRef.current = requestAnimationFrame(updateFPS);
     };
 
     // Start FPS monitoring
-    requestAnimationFrame(updateFPS);
+    animationFrameRef.current = requestAnimationFrame(updateFPS);
 
     // Performance optimizations
     const optimizePerformance = () => {
       // Reduce animation complexity on low-end devices
+      const deviceMemory = (navigator as { deviceMemory?: number }).deviceMemory || 8; // Default to 8GB if not available
       const isLowEndDevice = navigator.hardwareConcurrency <= 2 || 
-                            navigator.deviceMemory <= 4 ||
+                            deviceMemory <= 4 ||
                             /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
       if (isLowEndDevice) {
@@ -78,7 +80,9 @@ export const PerformanceOptimizer = () => {
       gsap.killTweensOf("*");
       
       // Clear any pending animations
-      cancelAnimationFrame(updateFPS as any);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
     };
 
     // Cleanup on unmount
@@ -128,11 +132,13 @@ export const useIntersectionObserver = (callback: () => void, options?: Intersec
 
 // Debounced resize handler for responsive animations
 export const useDebouncedResize = (callback: () => void, delay: number = 250) => {
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const handleResize = () => {
-      clearTimeout(timeoutRef.current);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
       timeoutRef.current = setTimeout(callback, delay);
     };
 
@@ -140,7 +146,9 @@ export const useDebouncedResize = (callback: () => void, delay: number = 250) =>
     
     return () => {
       window.removeEventListener('resize', handleResize);
-      clearTimeout(timeoutRef.current);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
     };
   }, [callback, delay]);
 };
@@ -158,7 +166,7 @@ export const preloadAnimations = () => {
 export const getAnimationQuality = () => {
   if (typeof window === 'undefined') return 'medium';
   
-  const connection = (navigator as any).connection;
+  const connection = (navigator as { connection?: { effectiveType?: string } }).connection;
   const isSlowConnection = connection && (connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g');
   const isLowEndDevice = navigator.hardwareConcurrency <= 2;
   

@@ -68,12 +68,13 @@ export const animationPresets = {
 // Advanced scroll-triggered animations
 export const createScrollAnimations = () => {
   // Parallax scrolling for hero sections
-  gsap.utils.toArray(".parallax-element").forEach((element: any) => {
-    gsap.to(element, {
+  gsap.utils.toArray(".parallax-element").forEach((element: unknown) => {
+    const el = element as Element;
+    gsap.to(el, {
       yPercent: -50,
       ease: "none",
       scrollTrigger: {
-        trigger: element,
+        trigger: el,
         start: "top bottom",
         end: "bottom top",
         scrub: true
@@ -82,8 +83,9 @@ export const createScrollAnimations = () => {
   });
 
   // Staggered text animations
-  gsap.utils.toArray(".text-reveal").forEach((element: any) => {
-    const text = element.querySelectorAll("span");
+  gsap.utils.toArray(".text-reveal").forEach((element: unknown) => {
+    const el = element as Element;
+    const text = el.querySelectorAll("span");
     gsap.fromTo(text, 
       { opacity: 0, y: 100, rotationX: -90 },
       {
@@ -94,7 +96,7 @@ export const createScrollAnimations = () => {
         ease: "power3.out",
         stagger: 0.1,
         scrollTrigger: {
-          trigger: element,
+          trigger: el,
           start: "top 80%",
           end: "bottom 20%",
           toggleActions: "play none none reverse"
@@ -104,8 +106,9 @@ export const createScrollAnimations = () => {
   });
 
   // Image reveal animations
-  gsap.utils.toArray(".image-reveal").forEach((element: any) => {
-    gsap.fromTo(element,
+  gsap.utils.toArray(".image-reveal").forEach((element: unknown) => {
+    const el = element as Element;
+    gsap.fromTo(el,
       { scale: 1.2, opacity: 0 },
       {
         scale: 1,
@@ -113,7 +116,7 @@ export const createScrollAnimations = () => {
         duration: 1.5,
         ease: "power2.out",
         scrollTrigger: {
-          trigger: element,
+          trigger: el,
           start: "top 85%",
           end: "bottom 15%",
           toggleActions: "play none none reverse"
@@ -123,10 +126,11 @@ export const createScrollAnimations = () => {
   });
 
   // Card hover animations
-  gsap.utils.toArray(".hover-card").forEach((card: any) => {
+  gsap.utils.toArray(".hover-card").forEach((card: unknown) => {
+    const el = card as Element;
     const tl = gsap.timeline({ paused: true });
     
-    tl.to(card, {
+    tl.to(el, {
       y: -20,
       scale: 1.02,
       boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
@@ -134,8 +138,8 @@ export const createScrollAnimations = () => {
       ease: "power2.out"
     });
 
-    card.addEventListener("mouseenter", () => tl.play());
-    card.addEventListener("mouseleave", () => tl.reverse());
+    el.addEventListener("mouseenter", () => tl.play());
+    el.addEventListener("mouseleave", () => tl.reverse());
   });
 };
 
@@ -294,13 +298,6 @@ export const initSmoothScroll = () => {
       const lenis = new Lenis({
         duration: 1.2,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        direction: "vertical",
-        gestureDirection: "vertical",
-        smooth: true,
-        mouseMultiplier: 1,
-        smoothTouch: false,
-        touchMultiplier: 2,
-        infinite: false,
       });
 
       function raf(time: number) {

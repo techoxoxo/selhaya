@@ -2900,7 +2900,7 @@ export default function HomePage() {
       image: "/assets/images/1.png",
       title: (
         <>
-          The World's First <span className="font-bold">British-Islamic</span> Luxury <span className="italic">Abaya</span> <span className="font-light">Maison</span>®
+          The World&apos;s First <span className="font-bold">British-Islamic</span> Luxury <span className="italic">Abaya</span> <span className="font-light">Maison</span>®
         </>
       ),
       subtitle:

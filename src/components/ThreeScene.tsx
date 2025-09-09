@@ -45,7 +45,8 @@ function FloatingParticles({ count = 100 }: { count?: number }) {
     if (!mesh.current) return;
     
     particles.forEach((particle, i) => {
-      let { t, factor, speed, xFactor, yFactor, zFactor } = particle;
+      const { t: initialT, factor, speed, xFactor, yFactor, zFactor } = particle;
+      let t = initialT;
       t = particle.t += speed / 2;
       const a = Math.cos(t) + Math.sin(t * 1) / 10;
       const b = Math.sin(t) + Math.cos(t * 2) / 10;
@@ -59,9 +60,13 @@ function FloatingParticles({ count = 100 }: { count?: number }) {
       temp.scale.setScalar(s);
       temp.rotation.set(s * 5, s * 5, s * 5);
       temp.updateMatrix();
-      mesh.current.setMatrixAt(i, temp.matrix);
+      if (mesh.current) {
+        mesh.current.setMatrixAt(i, temp.matrix);
+      }
     });
-    mesh.current.instanceMatrix.needsUpdate = true;
+    if (mesh.current) {
+      mesh.current.instanceMatrix.needsUpdate = true;
+    }
   });
 
   return (
@@ -74,7 +79,7 @@ function FloatingParticles({ count = 100 }: { count?: number }) {
 
 // Animated text component
 function AnimatedText({ children, position = [0, 0, 0] }: { children: string; position?: [number, number, number] }) {
-  const textRef = useRef<THREE.Group>(null);
+  const textRef = useRef<THREE.Mesh>(null);
   
   useFrame((state) => {
     if (textRef.current) {
