@@ -1,15 +1,12 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { ThreeSceneFallback } from './ThreeSceneFallback';
 
 // Simple ThreeScene component that falls back to CSS animations
 export const ThreeScene = () => {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [hasError, setHasError] = useState(false);
-
   useEffect(() => {
-    // Try to load Three.js components
+    // Try to load Three.js components in the background
     const loadThreeComponents = async () => {
       try {
         await import('@react-three/fiber');
@@ -17,10 +14,9 @@ export const ThreeScene = () => {
         await import('@react-three/postprocessing');
         await import('postprocessing');
         await import('three');
-        setIsLoaded(true);
+        console.log('Three.js components loaded successfully');
       } catch (error) {
         console.warn('Three.js components not available, using fallback:', error);
-        setHasError(true);
       }
     };
 
