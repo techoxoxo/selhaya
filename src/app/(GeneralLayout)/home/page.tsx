@@ -232,19 +232,27 @@ const HeroSection = ({
     if (sectionRef.current) {
       // Create a function to animate text
       const animateText = () => {
-        // Animate the entire content container
+        // Animate the entire content container with luxury feel
         const contentElement = sectionRef.current?.querySelector(".hero-content");
         if (contentElement) {
           gsap.fromTo(
             contentElement,
-            { opacity: 0, y: 50, scale: 0.95 },
+            { 
+              opacity: 0, 
+              y: 60, 
+              scale: 0.92,
+              filter: "blur(10px)",
+              rotationX: 8
+            },
             {
               opacity: 1,
               y: 0,
               scale: 1,
-              duration: 1.5,
+              filter: "blur(0px)",
+              rotationX: 0,
+              duration: 1.8,
               ease: "power3.out",
-              delay: 0.2,
+              delay: 0.3,
             }
           );
         }
@@ -284,7 +292,7 @@ const HeroSection = ({
                 y: 20
               });
 
-              // Carpet unrolling animation
+              // Carpet unrolling animation with luxury feel
               gsap.to(span, {
                 opacity: 1,
                 scaleX: 1,
@@ -295,9 +303,9 @@ const HeroSection = ({
                 skewX: 0,
                 x: 0,
                 y: 0,
-                duration: 1.8,
+                duration: 2.2,
                 ease: "power2.out",
-                delay: 0.5 + wordIndex * 0.2,
+                delay: 0.8 + wordIndex * 0.25,
                 onComplete: () => {
                   // Add gentle wave after unroll
                   gsap.to(span, {
@@ -322,7 +330,7 @@ const HeroSection = ({
                 skewX: 10
               });
 
-              // Unfolding animation
+              // Unfolding animation with luxury feel
               gsap.to(span, {
                 opacity: 1,
                 scaleX: 1,
@@ -330,9 +338,9 @@ const HeroSection = ({
                 rotationX: 0,
                 rotationY: 0,
                 skewX: 0,
-                duration: 1.2,
+                duration: 1.6,
                 ease: "power3.out",
-                delay: 0.3 + wordIndex * 0.15,
+                delay: 0.5 + wordIndex * 0.2,
                 onComplete: () => {
                   // Add gentle floating after unfold
                   gsap.to(span, {
@@ -376,7 +384,7 @@ const HeroSection = ({
                 skewX: 0
               });
               
-              // Carpet unrolling animation
+              // Carpet unrolling animation with luxury feel
               gsap.to(span, {
                 opacity: 1,
                 scaleX: 1,
@@ -387,9 +395,9 @@ const HeroSection = ({
                 x: 0,
                 y: 0,
                 skewX: 0,
-                duration: 1.2,
+                duration: 1.5,
                 ease: "power2.out",
-                delay: 2.0 + charIndex * 0.05,
+                delay: 2.5 + charIndex * 0.08,
                 onComplete: () => {
                   // Add gentle wave effect
                   gsap.to(span, {
@@ -414,7 +422,7 @@ const HeroSection = ({
                 skewX: Math.random() * 10 - 5
               });
               
-              // Unfolding animation
+              // Unfolding animation with luxury feel
               gsap.to(span, {
                 opacity: 1,
                 scaleX: 1,
@@ -423,9 +431,9 @@ const HeroSection = ({
                 rotationZ: 0,
                 y: 0,
                 skewX: 0,
-                duration: 0.8,
+                duration: 1.2,
                 ease: "power2.out",
-                delay: showButton ? 1.5 + charIndex * 0.03 : 0.8 + charIndex * 0.02,
+                delay: showButton ? 2.0 + charIndex * 0.05 : 1.2 + charIndex * 0.03,
                 onComplete: () => {
                   // Add gentle wave effect
                   gsap.to(span, {
@@ -458,7 +466,7 @@ const HeroSection = ({
               filter: "blur(15px)"
             });
 
-            // Unfolding animation
+            // Unfolding animation with luxury feel
             gsap.to(buttonElement, {
               opacity: 1,
               scaleX: 1,
@@ -468,9 +476,9 @@ const HeroSection = ({
               y: 0,
               skewX: 0,
               filter: "blur(0px)",
-              duration: 1.5,
+              duration: 2.0,
               ease: "power3.out",
-              delay: 2.2,
+              delay: 3.0,
               onComplete: () => {
                 // Add magnetic hover effect
                 createMagneticEffect(buttonElement as HTMLElement, 0.2);
@@ -491,19 +499,21 @@ const HeroSection = ({
         }
       };
 
-      // Create ScrollTrigger for this specific section
+      // Create ScrollTrigger for this specific section with luxury feel
       ScrollTrigger.create({
         trigger: sectionRef.current,
-        start: "top 90%",
-        end: "bottom 10%",
+        start: "top 80%",
+        end: "bottom 20%",
         onEnter: () => {
           // Reset and animate when entering this section
           const contentElement = sectionRef.current?.querySelector(".hero-content");
           if (contentElement) {
             gsap.set(contentElement, {
               opacity: 0,
-              y: 50,
-              scale: 0.95
+              y: 60,
+              scale: 0.92,
+              filter: "blur(10px)",
+              rotationX: 8
             });
           }
           animateText();
@@ -514,8 +524,10 @@ const HeroSection = ({
           if (contentElement) {
             gsap.set(contentElement, {
               opacity: 0,
-              y: 50,
-              scale: 0.95
+              y: 60,
+              scale: 0.92,
+              filter: "blur(10px)",
+              rotationX: 8
             });
           }
           animateText();
@@ -2851,31 +2863,133 @@ export default function HomePage() {
   }, []);
 
   useGSAP(() => {
-    const sections = containerRef.current?.querySelectorAll(".hero-section");
-    if (sections && sections.length > 0) {
-      gsap.to(sections, {
-        xPercent: -100 * (sections.length - 1),
-        ease: "none",
-        scrollTrigger: {
-          trigger: containerRef.current,
-          pin: true,
-          scrub: 0.1, // Very fast scroll - reduced from 0.3 to 0.1
-          snap: {
-            snapTo: 1 / (sections.length - 1),
-            duration: { min: 0.05, max: 0.15 }, // Very fast snap duration
-            delay: 0.02, // Minimal delay
-            ease: "power4.inOut", // Most responsive easing
-            directional: false,
-          },
-          end: () =>
-            `+=${
-              (containerRef.current?.offsetWidth || window.innerWidth) *
-              (sections.length - 1) * 0.3 // Much shorter scroll distance
-            }`,
-          invalidateOnRefresh: true,
+    // Create smooth vertical scroll animations for hero sections with auto-advance
+    const heroSections = gsap.utils.toArray(".hero-section");
+    let currentSlide = 0;
+    let isTransitioning = false;
+    
+    // Create smooth slide transitions
+    const transitionToSlide = (targetSlide: number) => {
+      if (isTransitioning || targetSlide === currentSlide) return;
+      
+      isTransitioning = true;
+      const currentElement = heroSections[currentSlide] as Element;
+      const targetElement = heroSections[targetSlide] as Element;
+      
+      if (currentElement && targetElement) {
+        // Smooth exit for current slide
+        gsap.to(currentElement, {
+          opacity: 0,
+          y: -50,
+          scale: 0.95,
+          filter: "blur(10px)",
+          duration: 0.8,
+          ease: "power2.inOut",
+          onComplete: () => {
+            // Smooth entrance for target slide
+            gsap.fromTo(targetElement, 
+              {
+                opacity: 0,
+                y: 50,
+                scale: 0.95,
+                filter: "blur(10px)",
+                rotationX: 5
+              },
+              {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                filter: "blur(0px)",
+                rotationX: 0,
+                duration: 1.2,
+                ease: "power3.out",
+                onComplete: () => {
+                  isTransitioning = false;
+                }
+              }
+            );
+          }
+        });
+        
+        currentSlide = targetSlide;
+      }
+    };
+    
+    // Create scroll-triggered auto-advance
+    heroSections.forEach((section, index) => {
+      ScrollTrigger.create({
+        trigger: section as Element,
+        start: "top 90%",
+        end: "bottom 10%",
+        onEnter: () => {
+          if (index !== currentSlide) {
+            transitionToSlide(index);
+          }
         },
+        onLeave: () => {
+          // Smooth fade out when leaving
+          gsap.to(section as Element, {
+            opacity: 0.3,
+            y: -30,
+            scale: 0.98,
+            duration: 0.6,
+            ease: "power2.inOut"
+          });
+        },
+        onEnterBack: () => {
+          // Smooth re-entry
+          gsap.to(section as Element, {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.8,
+            ease: "power3.out"
+          });
+        }
       });
-    }
+    });
+
+    // Add scroll wheel event for smooth auto-advance with luxury feel
+    let scrollTimeout: NodeJS.Timeout;
+    let scrollAccumulator = 0;
+    const scrollThreshold = 50; // Minimum scroll distance to trigger transition
+    
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      
+      if (isTransitioning) return;
+      
+      scrollAccumulator += e.deltaY;
+      
+      // Clear existing timeout
+      clearTimeout(scrollTimeout);
+      
+      // Set timeout to reset accumulator
+      scrollTimeout = setTimeout(() => {
+        scrollAccumulator = 0;
+      }, 150);
+      
+      // Check if accumulated scroll exceeds threshold
+      if (Math.abs(scrollAccumulator) >= scrollThreshold) {
+        if (scrollAccumulator > 0 && currentSlide < heroSections.length - 1) {
+          // Scroll down - go to next slide
+          transitionToSlide(currentSlide + 1);
+          scrollAccumulator = 0;
+        } else if (scrollAccumulator < 0 && currentSlide > 0) {
+          // Scroll up - go to previous slide
+          transitionToSlide(currentSlide - 1);
+          scrollAccumulator = 0;
+        }
+      }
+    };
+
+    // Add wheel event listener with smooth scrolling
+    window.addEventListener('wheel', handleWheel, { passive: false });
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+    };
 
     // Initialize scroll animations
     createScrollAnimations();
@@ -2926,13 +3040,59 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen overflow-x-hidden">
-      <PerformanceMonitor />
-      <Header />
-      <div className="relative">
-        <div ref={containerRef} className="w-[300vw] flex min-h-screen">
+    <>
+      <style jsx global>{`
+        .hero-section-container {
+          transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .hero-section {
+          transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .hero-content {
+          transition: all 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        /* Smooth scroll behavior */
+        html {
+          scroll-behavior: smooth;
+        }
+        
+        /* Luxury fade transitions */
+        .luxury-fade-enter {
+          opacity: 0;
+          transform: translateY(60px) scale(0.95);
+          filter: blur(10px);
+        }
+        
+        .luxury-fade-enter-active {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+          filter: blur(0px);
+          transition: all 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .luxury-fade-exit {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+          filter: blur(0px);
+        }
+        
+        .luxury-fade-exit-active {
+          opacity: 0;
+          transform: translateY(-50px) scale(0.95);
+          filter: blur(10px);
+          transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+      `}</style>
+      <div className="min-h-screen overflow-x-hidden" style={{ scrollBehavior: 'smooth' }}>
+        <PerformanceMonitor />
+        <Header />
+        <div className="relative">
+          {/* Vertical Hero Sections with smooth transitions */}
           {heroSections.map((section, index) => (
-            <div key={index} className="w-screen h-screen flex-shrink-0">
+            <div key={index} className="w-full h-screen hero-section-container">
               <HeroSection
                 image={section.image}
                 title={section.title}
@@ -2945,7 +3105,6 @@ export default function HomePage() {
               />
             </div>
           ))}
-        </div>
 
         <div className="relative z-10">
           {/* <CircularAnimationSection /> */}
@@ -3007,5 +3166,6 @@ export default function HomePage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
