@@ -1144,6 +1144,8 @@ const ProductCard = ({
   );
 };
 
+
+
 const Heading = ({ className = "" }: { className?: string }) => {
   const headingRef = useRef<HTMLDivElement>(null);
 
@@ -2863,129 +2865,309 @@ export default function HomePage() {
   }, []);
 
   useGSAP(() => {
-    // Create smooth vertical scroll animations for hero sections with auto-advance
+    // Create smooth parallax scroll system for hero sections
     const heroSections = gsap.utils.toArray(".hero-section");
     let currentSlide = 0;
     let isTransitioning = false;
+    let scrollProgress = 0;
+    let targetSlide = 0;
     
-    // Create smooth slide transitions
-    const transitionToSlide = (targetSlide: number) => {
-      if (isTransitioning || targetSlide === currentSlide) return;
-      
-      isTransitioning = true;
-      const currentElement = heroSections[currentSlide] as Element;
-      const targetElement = heroSections[targetSlide] as Element;
-      
-      if (currentElement && targetElement) {
-        // Smooth exit for current slide
-        gsap.to(currentElement, {
-          opacity: 0,
-          y: -50,
-          scale: 0.95,
-          filter: "blur(10px)",
-          duration: 0.8,
-          ease: "power2.inOut",
-          onComplete: () => {
-            // Smooth entrance for target slide
-            gsap.fromTo(targetElement, 
-              {
-                opacity: 0,
-                y: 50,
-                scale: 0.95,
-                filter: "blur(10px)",
-                rotationX: 5
-              },
-              {
-                opacity: 1,
-                y: 0,
-                scale: 1,
-                filter: "blur(0px)",
-                rotationX: 0,
-                duration: 1.2,
-                ease: "power3.out",
-                onComplete: () => {
-                  isTransitioning = false;
-                }
-              }
-            );
-          }
-        });
-        
-        currentSlide = targetSlide;
-      }
-    };
-    
-    // Create scroll-triggered auto-advance
+    // Initialize all slides with proper positioning
     heroSections.forEach((section, index) => {
-      ScrollTrigger.create({
-        trigger: section as Element,
-        start: "top 90%",
-        end: "bottom 10%",
-        onEnter: () => {
-          if (index !== currentSlide) {
-            transitionToSlide(index);
-          }
-        },
-        onLeave: () => {
-          // Smooth fade out when leaving
-          gsap.to(section as Element, {
-            opacity: 0.3,
-            y: -30,
-            scale: 0.98,
-            duration: 0.6,
-            ease: "power2.inOut"
+      gsap.set(section as Element, {
+        opacity: index === 0 ? 1 : 0,
+        y: 0,
+        scale: 1,
+        filter: "blur(0px)",
+        rotationX: 0,
+        zIndex: index === 0 ? 10 : 1,
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100vh"
+      });
+    });
+    
+    // Smooth vertical parallax transition system
+    const updateSlideTransition = (progress: number) => {
+      if (isTransitioning) return;
+      
+      const totalSlides = heroSections.length;
+      const slideIndex = Math.floor(progress * (totalSlides - 1));
+      const slideProgress = (progress * (totalSlides - 1)) % 1;
+      
+      // Update target slide
+      targetSlide = Math.min(slideIndex, totalSlides - 1);
+      
+      // Animate all slides with vertical parallax effect
+      heroSections.forEach((section, index) => {
+        const element = section as Element;
+        const distance = index - targetSlide;
+        
+        if (distance === 0) {
+          // Current slide - visible with slight movement
+          gsap.to(element, {
+            opacity: 1 - slideProgress * 0.2,
+            y: slideProgress * 30,
+            scale: 1 - slideProgress * 0.01,
+            duration: 0.1,
+            ease: "none"
           });
-        },
-        onEnterBack: () => {
-          // Smooth re-entry
-          gsap.to(section as Element, {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.8,
-            ease: "power3.out"
+        } else if (distance === 1) {
+          // Next slide - coming up from below
+          gsap.to(element, {
+            opacity: slideProgress * 0.9,
+            y: 100 - slideProgress * 100,
+            scale: 0.95 + slideProgress * 0.05,
+            duration: 0.1,
+            ease: "none"
+          });
+        } else if (distance === -1) {
+          // Previous slide - going up
+          gsap.to(element, {
+            opacity: (1 - slideProgress) * 0.3,
+            y: -100 + slideProgress * 100,
+            scale: 0.95 + (1 - slideProgress) * 0.05,
+            duration: 0.1,
+            ease: "none"
+          });
+        } else {
+          // Distant slides - hide
+          gsap.to(element, {
+            opacity: 0,
+            y: distance > 0 ? 100 : -100,
+            scale: 0.95,
+            duration: 0.1,
+            ease: "none"
           });
         }
       });
-    });
-
-    // Add scroll wheel event for smooth auto-advance with luxury feel
-    let scrollTimeout: NodeJS.Timeout;
+      
+      currentSlide = targetSlide;
+    };
+    
+    // Enhanced parallax scroll handler with smooth transitions
     let scrollAccumulator = 0;
-    const scrollThreshold = 50; // Minimum scroll distance to trigger transition
+    let lastScrollTime = 0;
+    const scrollSensitivity = 0.5; // Increased sensitivity for better responsiveness
+    const scrollThreshold = 50; // Minimum scroll delta to trigger transition
+    const scrollCooldown = 100; // Minimum time between transitions (ms)
     
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       
+      const currentTime = Date.now();
+      
+      // Prevent rapid scrolling
+      if (currentTime - lastScrollTime < scrollCooldown) return;
       if (isTransitioning) return;
       
       scrollAccumulator += e.deltaY;
       
-      // Clear existing timeout
-      clearTimeout(scrollTimeout);
+      // Only trigger transition if scroll threshold is met
+      if (Math.abs(scrollAccumulator) < scrollThreshold) return;
       
-      // Set timeout to reset accumulator
-      scrollTimeout = setTimeout(() => {
-        scrollAccumulator = 0;
-      }, 150);
+      const direction = scrollAccumulator > 0 ? 1 : -1;
+      scrollAccumulator = 0;
+      lastScrollTime = currentTime;
       
-      // Check if accumulated scroll exceeds threshold
-      if (Math.abs(scrollAccumulator) >= scrollThreshold) {
-        if (scrollAccumulator > 0 && currentSlide < heroSections.length - 1) {
-          // Scroll down - go to next slide
-          transitionToSlide(currentSlide + 1);
-          scrollAccumulator = 0;
-        } else if (scrollAccumulator < 0 && currentSlide > 0) {
-          // Scroll up - go to previous slide
-          transitionToSlide(currentSlide - 1);
-          scrollAccumulator = 0;
+      console.log('Scroll detected:', e.deltaY, 'Direction:', direction, 'Current slide:', currentSlide);
+      
+      // Scroll down - go to next slide
+      if (direction > 0 && currentSlide < heroSections.length - 1) {
+        const nextSlide = currentSlide + 1;
+        console.log('Moving to next slide:', nextSlide);
+        
+        isTransitioning = true;
+        
+        const currentElement = heroSections[currentSlide] as Element;
+        const nextElement = heroSections[nextSlide] as Element;
+        
+        if (currentElement && nextElement) {
+          // Add transitioning class for visual feedback
+          currentElement.classList.add('transitioning');
+          nextElement.classList.add('transitioning');
+          
+          // Create smooth parallax transition
+          const tl = gsap.timeline({
+            onComplete: () => {
+              isTransitioning = false;
+              currentSlide = nextSlide;
+              currentElement.classList.remove('transitioning');
+              nextElement.classList.remove('transitioning');
+              updateDebugDisplay();
+              console.log('Transition complete, current slide:', currentSlide);
+            }
+          });
+          
+          // Animate current slide out with parallax effect
+          tl.to(currentElement, {
+            opacity: 0,
+            y: -window.innerHeight * 0.3, // Move up with parallax
+            scale: 0.95,
+            filter: "blur(2px)",
+            duration: 1.2,
+            ease: "power2.inOut"
+          })
+          // Add parallax effect to background image
+          .to(currentElement.querySelector('.absolute'), {
+            y: -window.innerHeight * 0.1, // Background moves slower for parallax
+            duration: 1.2,
+            ease: "power2.inOut"
+          }, 0);
+          
+          // Animate next slide in with parallax effect
+          tl.fromTo(nextElement, 
+            {
+              opacity: 0,
+              y: window.innerHeight * 0.3, // Start from below
+              scale: 0.95,
+              filter: "blur(2px)"
+            },
+            {
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              filter: "blur(0px)",
+              duration: 1.2,
+              ease: "power2.inOut"
+            }, "-=0.6" // Overlap animations
+          )
+          // Add parallax effect to background image
+          .fromTo(nextElement.querySelector('.absolute'), 
+            {
+              y: window.innerHeight * 0.1 // Background starts offset
+            },
+            {
+              y: 0, // Background settles to normal position
+              duration: 1.2,
+              ease: "power2.inOut"
+            }, "-=0.6");
+        }
+      } 
+      // Scroll up - go to previous slide
+      else if (direction < 0 && currentSlide > 0) {
+        const prevSlide = currentSlide - 1;
+        console.log('Moving to previous slide:', prevSlide);
+        
+        isTransitioning = true;
+        
+        const currentElement = heroSections[currentSlide] as Element;
+        const prevElement = heroSections[prevSlide] as Element;
+        
+        if (currentElement && prevElement) {
+          // Add transitioning class for visual feedback
+          currentElement.classList.add('transitioning');
+          prevElement.classList.add('transitioning');
+          
+          // Create smooth parallax transition
+          const tl = gsap.timeline({
+            onComplete: () => {
+              isTransitioning = false;
+              currentSlide = prevSlide;
+              currentElement.classList.remove('transitioning');
+              prevElement.classList.remove('transitioning');
+              updateDebugDisplay();
+              console.log('Transition complete, current slide:', currentSlide);
+            }
+          });
+          
+          // Animate current slide out with parallax effect
+          tl.to(currentElement, {
+            opacity: 0,
+            y: window.innerHeight * 0.3, // Move down with parallax
+            scale: 0.95,
+            filter: "blur(2px)",
+            duration: 1.2,
+            ease: "power2.inOut"
+          })
+          // Add parallax effect to background image
+          .to(currentElement.querySelector('.absolute'), {
+            y: window.innerHeight * 0.1, // Background moves slower for parallax
+            duration: 1.2,
+            ease: "power2.inOut"
+          }, 0);
+          
+          // Animate previous slide in with parallax effect
+          tl.fromTo(prevElement, 
+            {
+              opacity: 0,
+              y: -window.innerHeight * 0.3, // Start from above
+              scale: 0.95,
+              filter: "blur(2px)"
+            },
+            {
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              filter: "blur(0px)",
+              duration: 1.2,
+              ease: "power2.inOut"
+            }, "-=0.6" // Overlap animations
+          )
+          // Add parallax effect to background image
+          .fromTo(prevElement.querySelector('.absolute'), 
+            {
+              y: -window.innerHeight * 0.1 // Background starts offset
+            },
+            {
+              y: 0, // Background settles to normal position
+              duration: 1.2,
+              ease: "power2.inOut"
+            }, "-=0.6");
         }
       }
     };
-
-    // Add wheel event listener with smooth scrolling
+    
+    // Smooth scroll to specific slide
+    const scrollToSlide = (slideIndex: number) => {
+      if (isTransitioning || slideIndex === currentSlide) return;
+      
+      isTransitioning = true;
+      const targetProgress = slideIndex / (heroSections.length - 1);
+      
+      // Smooth scroll to target
+      gsap.to({ progress: scrollProgress }, {
+        progress: targetProgress,
+        duration: 1.2,
+        ease: "power3.out",
+        onUpdate: function() {
+          updateSlideTransition(this.targets()[0].progress);
+        },
+        onComplete: () => {
+          isTransitioning = false;
+          scrollProgress = targetProgress;
+          scrollAccumulator = targetProgress * 100;
+        }
+      });
+    };
+    
+    // Add scroll event listeners
     window.addEventListener('wheel', handleWheel, { passive: false });
-
+    
+    // Update debug display
+    const updateDebugDisplay = () => {
+      const currentSlideElement = document.getElementById('current-slide');
+      if (currentSlideElement) {
+        currentSlideElement.textContent = currentSlide.toString();
+      }
+    };
+    
+    // Initialize with first slide visible
+    console.log('Initializing hero sections, total slides:', heroSections.length);
+    heroSections.forEach((section, index) => {
+      const element = section as Element;
+      if (index === 0) {
+        gsap.set(element, { opacity: 1, y: 0, scale: 1, zIndex: 10 });
+      } else {
+        gsap.set(element, { opacity: 0, y: 100, scale: 0.95, zIndex: 1 });
+      }
+    });
+    
+    // Initial debug display
+    updateDebugDisplay();
+    
     // Cleanup
     return () => {
       window.removeEventListener('wheel', handleWheel);
@@ -3043,15 +3225,32 @@ export default function HomePage() {
     <>
       <style jsx global>{`
         .hero-section-container {
-          transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          position: relative;
+          height: 100vh;
+          width: 100%;
         }
         
         .hero-section {
-          transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100vh;
+          will-change: transform, opacity, filter;
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+          transform: translateZ(0);
+          -webkit-transform: translateZ(0);
+          margin: 0;
+          padding: 0;
+          border: none;
+          outline: none;
         }
         
         .hero-content {
-          transition: all 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          will-change: transform, opacity;
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
         }
         
         /* Smooth scroll behavior */
@@ -3059,40 +3258,94 @@ export default function HomePage() {
           scroll-behavior: smooth;
         }
         
-        /* Luxury fade transitions */
-        .luxury-fade-enter {
+        /* Prevent flickering and ensure smooth transitions */
+        body {
+          background-color: #000;
+          overflow-x: hidden;
+          margin: 0;
+          padding: 0;
+        }
+        
+        /* Parallax smooth transitions */
+        .parallax-slide {
+          transition: none;
+          transform: translateZ(0);
+          -webkit-transform: translateZ(0);
+        }
+        
+        /* Ensure no gaps between slides */
+        .hero-section-container {
+          margin: 0;
+          padding: 0;
+          height: 100vh;
+          width: 100%;
+          position: relative;
+        }
+        
+        .hero-section-container + .hero-section-container {
+          margin-top: 0;
+        }
+        
+        /* Smooth transitions with parallax effect */
+        .hero-section {
+          transition: none; /* Remove CSS transitions, let GSAP handle it */
+          transform-origin: center center;
+        }
+        
+        /* Parallax effect for background images */
+        .hero-section .absolute {
+          will-change: transform;
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+        }
+        
+        /* Subtle transition overlay for visual boundaries */
+        .hero-section::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(
+            to bottom,
+            transparent 0%,
+            rgba(0,0,0,0.02) 50%,
+            transparent 100%
+          );
           opacity: 0;
-          transform: translateY(60px) scale(0.95);
-          filter: blur(10px);
+          transition: opacity 0.3s ease;
+          pointer-events: none;
+          z-index: 1;
         }
         
-        .luxury-fade-enter-active {
+        /* Show subtle boundary during transitions */
+        .hero-section.transitioning::before {
           opacity: 1;
-          transform: translateY(0) scale(1);
-          filter: blur(0px);
-          transition: all 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
         
-        .luxury-fade-exit {
-          opacity: 1;
-          transform: translateY(0) scale(1);
-          filter: blur(0px);
-        }
-        
-        .luxury-fade-exit-active {
-          opacity: 0;
-          transform: translateY(-50px) scale(0.95);
-          filter: blur(10px);
-          transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        /* Prevent text selection during scroll */
+        .hero-section * {
+          user-select: none;
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
         }
       `}</style>
       <div className="min-h-screen overflow-x-hidden" style={{ scrollBehavior: 'smooth' }}>
         <PerformanceMonitor />
         <Header />
         <div className="relative">
-          {/* Vertical Hero Sections with smooth transitions */}
+          {/* Debug info */}
+          {/* <div className="fixed top-4 left-4 z-50 bg-black/80 text-white p-2 rounded text-sm">
+            <div>Current Slide: <span id="current-slide">0</span></div>
+            <div>Total Slides: <span id="total-slides">3</span></div>
+            <div>Scroll to test transitions</div>
+          </div> */}
+          
+          {/* Parallax Hero Sections */}
           {heroSections.map((section, index) => (
-            <div key={index} className="w-full h-screen hero-section-container">
+            <div key={index} className="hero-section-container">
               <HeroSection
                 image={section.image}
                 title={section.title}
@@ -3169,3 +3422,4 @@ export default function HomePage() {
     </>
   );
 }
+
